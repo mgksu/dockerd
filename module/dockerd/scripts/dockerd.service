@@ -10,11 +10,15 @@ required_minor=14
 kernel_major=$(echo "$current_kernel" | cut -d. -f1)
 kernel_minor=$(echo "$current_kernel" | cut -d. -f2)
 
-printf '%s\n' "$required_major.$required_minor" "$kernel_major.$kernel_minor" | sort -V -C
+if (( kernel_major < required_major ||
+      (kernel_major == required_major && kernel_minor < required_minor) ));
+then
+  old_kernel=1
+else
+  old_kernel=0
+fi
 
-check=$?
-
-if [ "$check" -eq 1 ]; then
+if [ "$old_kernel" -eq 1 ]; then
   opts='rw,nosuid,nodev,noexec,relatime'
   cgroups='blkio cpu cpuacct cpuset devices freezer memory pids schedtune'
   
